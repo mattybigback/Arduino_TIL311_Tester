@@ -34,7 +34,6 @@
 #define STROBE        0b01000000 // Pin 28
 #define BLANKING      4
 
-byte digit = 0;
 
 void setup() {
   PORTA &= ~DATA_PINS;        // Set all data pins to 0
@@ -46,29 +45,24 @@ void setup() {
 }
 
 void loop() {
-  if (digit < 16){
+  for(byte i=0; i < 16; i++){
     PORTA &= ~DATA_PINS;              // Clear data pins
-    PORTA |= digit;                   // Set data pins to value of digit variable
+    PORTA |= i;                   // Set data pins to value of digit variable
     PORTA ^= L_DP;                    // Toggle left dec. point
     PORTA ^= R_DP;                    // Toggle right dec. point
     PORTA &= ~STROBE;                 // Set strobe low
     PORTA |= STROBE;                  // Set strobe high
-
+  
     // Fade display using PWM.
-    for (byte i=0; i < 255; i++){
-      analogWrite(BLANKING, 255-i);
-      if (i < 40){
-        delay(8);
-      } else {
-        delay(4);
-      }
-    }
-
+    byte dutyCycle = 255;
+    do {
+      analogWrite(BLANKING, dutyCycle);
+      delay(5);
+      dutyCycle--;
+    } while (dutyCycle != 255);
+  
     delay(200);                       // Hold display at full brightness for 200 ms
     analogWrite(BLANKING, 255);       // Blank display
     delay(200);                       // Keep display off for 200 ms
-    digit++;                          // Increment digit variable
-  } else {
-    digit = 0;
   }
 }
