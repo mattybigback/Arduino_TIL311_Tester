@@ -34,10 +34,8 @@
 #define STROBE        0b10000000 // Pin 7
 #define BLANKING      3
 
-byte digit = 0;
-
 void setup() {
-
+  //Serial.begin(9600);
   PORTB &= ~DATA_PINS;        // Set all data pins to 0
   PORTD &= ~STROBE;           // Set STROBE high
   PORTD |= L_DP;              // Set left dec. point high
@@ -48,29 +46,26 @@ void setup() {
 }
 
 void loop() {
-  if (digit < 16){
+
+for(byte i=0; i < 16; i++){  
     PORTB &= ~DATA_PINS;              // Clear data pins
-    PORTB |= digit;                   // Set data pins to value of digit variable
+    PORTB |= i;                   // Set data pins to value of digit variable
     PORTD ^= L_DP;                    // Toggle left dec. point
     PORTD ^= R_DP;                    // Toggle right dec. point
     PORTD &= ~STROBE;                 // Set strobe low
     PORTD |= STROBE;                  // Set strobe high
 
     // Fade display using PWM.
-    for (byte i=0; i < 255; i++){
-      analogWrite(BLANKING, 255-i);
-      if (i < 40){
-        delay(8);
-      } else {
-        delay(4);
-      }
-    }
+    byte dutyCycle = 255;
+    do {
+      analogWrite(BLANKING, dutyCycle);
+      delay(5);
+      dutyCycle--;
+    } while (dutyCycle != 255);
 
     delay(200);                       // Hold display at full brightness for 200 ms
     analogWrite(BLANKING, 255);       // Blank display
     delay(200);                       // Keep display off for 200 ms
-    digit++;                          // Increment digit variable
-  } else {
-    digit = 0;
+
   }
 }
